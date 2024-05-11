@@ -9,6 +9,8 @@ const sequelize = new Sequelize(
     dialectOptions: {
       ssl: {
         require: process.env.DATABASE_SSL === "true",
+        // disable SSL certificate validation temporarily
+        rejectUnauthorized: false,
       },
     },
     host: process.env.DATABASE_HOST,
@@ -16,6 +18,10 @@ const sequelize = new Sequelize(
     waitForConnections: process.env.DATABASE_WAITFORCONNECTIONS === "true", // Перетворення рядка в логічне значення
     connectionLimit: parseInt(process.env.DATABASE_CONNECTIONLIMIT),
     queueLimit: parseInt(process.env.DATABASE_QUEUELIMIT),
+    pool: {
+      max: 10,
+      min: 1,
+    },
   }
 );
 
