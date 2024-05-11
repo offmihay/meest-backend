@@ -17,7 +17,6 @@ router.use(cors());
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 
-console.log("hello world");
 
 router.get("/all-brands", (req, res, next) =>
   allBrandsHandler(req, res, next, models)
