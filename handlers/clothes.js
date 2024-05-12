@@ -1,6 +1,5 @@
 const sequelize = require("../db_connection");
 var initModels = require("../models/init-models");
-var models = initModels(sequelize);
 
 module.exports = async (req, res, next, models) => {
   const { gender, brand } = req.query;
