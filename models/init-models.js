@@ -5,6 +5,7 @@ var _clothes_data = require("./clothes_data");
 var _conversions = require("./conversions");
 var _genders = require("./genders");
 var _size_types = require("./size_types");
+var _users = require("./users");
 
 function initModels(sequelize) {
   var brands = _brands(sequelize, DataTypes);
@@ -13,6 +14,7 @@ function initModels(sequelize) {
   var conversions = _conversions(sequelize, DataTypes);
   var genders = _genders(sequelize, DataTypes);
   var size_types = _size_types(sequelize, DataTypes);
+  var users = _users(sequelize, DataTypes);
 
 
   return {
@@ -22,6 +24,7 @@ function initModels(sequelize) {
     conversions,
     genders,
     size_types,
+    users,
   };
 }
 module.exports = initModels;

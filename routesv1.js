@@ -28,9 +28,9 @@ router.get("/brands", (req, res, next) =>
 router.get("/clothes", (req, res, next) =>
   clothesHandler(req, res, next, models)
 );
-router.post("/login", (req, res, next) =>
-  clothesHandler(req, res, next, models)
-);
+router.post("/login", (req, res, next) => loginHandler(req, res, next, models));
+
+
 
 router.use(errorHandler);
 
