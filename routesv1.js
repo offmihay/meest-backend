@@ -3,6 +3,7 @@ require("express-async-errors");
 const router = express.Router();
 const bodyParser = require("body-parser");
 const errorHandler = require("./middlewares/error_handler");
+const authorizationHandler = require("./middlewares/authorization_handler");
 
 const sequelize = require("./db_connection");
 const initModels = require("./models/init-models");
@@ -18,6 +19,7 @@ const allBrandsHandler = require("./handlers/all_brands");
 const brandsHandler = require("./handlers/brands");
 const clothesHandler = require("./handlers/clothes");
 const loginHandler = require("./handlers/login");
+const allUsersHandler = require("./handlers/all-users");
 
 router.get("/all-brands", (req, res, next) =>
   allBrandsHandler(req, res, next, models)
@@ -30,6 +32,9 @@ router.get("/clothes", (req, res, next) =>
 );
 router.post("/login", (req, res, next) => loginHandler(req, res, next, models));
 
+router.get("/all-users", authorizationHandler(models), (req, res, next) =>
+  allUsersHandler(req, res, next, models)
+);
 
 
 router.use(errorHandler);

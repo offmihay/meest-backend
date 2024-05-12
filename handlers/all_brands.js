@@ -1,5 +1,3 @@
-const models = require("./../models/init-models");
-
 module.exports = async (req, res, next, models) => {
   const brands = await models.brands.findAll();
   const transformedBrands = brands.map((brand) => ({
