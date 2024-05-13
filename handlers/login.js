@@ -26,6 +26,6 @@ module.exports = async (req, res, next, models) => {
     { where: { id: user.id } }
   );
 
-  res.json({ userData: { userID: user.id, token: `${token}` } });
+  res.json({ userData: { userId: user.id, token: `${token}` } });
 
 };
