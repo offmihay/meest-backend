@@ -36,9 +36,7 @@ router.post("/login", (req, res, next) => loginHandler(req, res, next, models));
 router.get("/all-users", authorizationHandler(models), (req, res, next) =>
   allUsersHandler(req, res, next, models)
 );
-router.get("/size", (req, res, next) =>
-  sizeHandler(req, res, next, models)
-);
+router.post("/size", (req, res, next) => sizeHandler(req, res, next, models));
 
 
 router.use(errorHandler);

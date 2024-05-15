@@ -1,7 +1,6 @@
 module.exports = async (req, res, next, models) => {
     try {
-        const { brand, cloth, gender } = req.query;
-        const { inputData } = req.body;
+        const { brand, cloth, gender, inputData } = req.body;
         console.log(inputData)
 
         if (!brand || !cloth || !gender || !inputData) {
