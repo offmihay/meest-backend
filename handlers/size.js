@@ -1,15 +1,17 @@
 module.exports = async (req, res, next, models) => {
     try {
         const { brand, cloth, gender, inputData } = req.body;
-        console.log(inputData)
+
 
         if (!brand || !cloth || !gender || !inputData) {
             return res.status(400).json({ error: "Missing required parameters" });
         }
 
-        const brandRecord = await models.brands.findOne({ where: { key: brand } });
-        const clothRecord = await models.clothes.findOne({ where: { key: cloth } });
-        const genderRecord = await models.genders.findOne({ where: { key: gender } });
+        const [brandRecord, clothRecord, genderRecord] = await Promise.all([
+            models.brands.findOne({ where: { key: brand } }),
+            models.clothes.findOne({ where: { key: cloth } }),
+            models.genders.findOne({ where: { key: gender } })
+        ]);
 
         if (!brandRecord || !clothRecord || !genderRecord) {
             return res.status(404).json({ error: "Invalid brand, cloth, or gender" });
@@ -27,27 +29,40 @@ module.exports = async (req, res, next, models) => {
             return res.status(404).json({ error: "No matching clothes data found" });
         }
 
-        console.log(inputData)
-
-        const queryWhereClause = {
-            uniq_cloth_id: clothesDataRecord.uniq_cloth_id
-        };
-        
-        for (const [key, value] of Object.entries(inputData)) {
-            queryWhereClause[key] = parseFloat(value);
-        }
-        
-        const conversionRecord = await models.conversions.findOne({
-            where: queryWhereClause
+        const conversions = await models.conversions.findAll({
+            where: {
+                uniq_cloth_id: clothesDataRecord.uniq_cloth_id
+            }
         });
 
-        if (!conversionRecord) {
-            return res.status(404).json({ error: "No size conversion found for the given foot length" });
+        let nearestConversion = null;
+        let minDistance = Number.MAX_VALUE;
+
+        for (const conversion of conversions) {
+            let distance = 0;
+
+            for (const [key, value] of Object.entries(inputData)) {
+                const conversionValue = parseFloat(conversion[key]);
+                const inputValue = parseFloat(value);
+                distance += Math.abs(conversionValue - inputValue);
+            }
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestConversion = conversion;
+            }
         }
 
-        return res.status(200).json({ size: conversionRecord.size_value });
+        if (!nearestConversion) {
+            return res.status(404).json({ error: "No size conversion found for the given parameters" });
+        }
+
+        return res.status(200).json({ 
+            size: nearestConversion.size_value
+        });
+
     } catch (error) {
-        console.error(error);
+        console.error('Error occurred:', error);
         return res.status(500).json({ error: "An error occurred while fetching the size" });
     }
 };
