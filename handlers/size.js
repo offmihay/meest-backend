@@ -56,9 +56,19 @@ module.exports = async (req, res, next, models) => {
         if (!nearestConversion) {
             return res.status(404).json({ error: "No size conversion found for the given parameters" });
         }
+        const bodyParameters = ["height", "head_length", "chest_length", "waist_length", "hip_length", "foot_length", "pants_length"];
+        const bodyParamsData = {};
+
+        for (const param of bodyParameters) {
+            if(nearestConversion[param] != null) {
+                bodyParamsData[param] = nearestConversion[param];
+            }
+        }
 
         return res.status(200).json({ 
-            size: nearestConversion.size_value
+            id: nearestConversion.id,
+            size: nearestConversion.size_value,
+            body_parameters: bodyParamsData
         });
 
     } catch (error) {
