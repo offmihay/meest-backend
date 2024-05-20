@@ -1,40 +1,30 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('size_types', {
+  return sequelize.define('size_systems', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    country_key: {
+    size_system: {
       type: DataTypes.STRING(50),
       allowNull: true
     },
-    country_name_UA: {
+    size_system_UA: {
+      type: DataTypes.STRING(255),
+      allowNull: true
+    },
+    body_part: {
       type: DataTypes.STRING(255),
       allowNull: true
     }
   }, {
     sequelize,
-    tableName: 'size_types',
+    tableName: 'size_systems',
     schema: 'public',
     timestamps: false,
     indexes: [
-      {
-        name: "country_key",
-        unique: true,
-        fields: [
-          { name: "country_key" },
-        ]
-      },
-      {
-        name: "country_name_UA",
-        unique: true,
-        fields: [
-          { name: "country_name_UA" },
-        ]
-      },
       {
         name: "primary00004",
         unique: true,
