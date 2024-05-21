@@ -51,12 +51,20 @@ module.exports = async (req, res, next, models) => {
       where: { id: cloth.cloth_id },
     });
 
+    const systemDefiniton = await models.system_conversions.findAll({
+      where: { body_part: clothDefinition.body_part },
+    });
+
+    const sizeSystems = systemDefiniton.map((def) => def.size_system);
+    const uniqueSizeSystems = [...new Set(sizeSystems)];
+
     if (clothDefinition) {
       clothesResponse.push({
         key: clothDefinition.key,
         name: clothDefinition.name,
         name_UA: clothDefinition.name_UA,
         body_parts: bodyParts,
+        unique_size_systems: uniqueSizeSystems,
       });
     }
   }
