@@ -1,9 +1,8 @@
 module.exports = async (req, res, next, models) => {
   try {
-      const { brand, cloth, gender, inputData } = req.body;
+      const { brand, cloth, gender, size_system, inputData } = req.body;
 
-
-      if (!brand || !cloth || !gender || !inputData) {
+      if (!brand || !cloth || !gender || !inputData || !size_system) {
           return res.status(400).json({ error: "Missing required parameters" });
       }
 
@@ -65,9 +64,33 @@ module.exports = async (req, res, next, models) => {
           }
       }
 
+      const sizeSystemRecord = await models.size_systems.findOne({
+          where: {
+              id: nearestConversion.size_type_id
+          }
+      });
+
+
+      const system_conversionsRecord = await models.system_conversions.findOne({
+          where: {
+              body_part: sizeSystemRecord.body_part,
+              size_system: sizeSystemRecord.size_system,
+              value: nearestConversion.size_value
+          }
+      });
+
+      const system_conversions_gropsRecord = await models.system_conversions.findOne({
+          where: {
+              conversion_group: system_conversionsRecord.conversion_group,
+              size_system: size_system,
+          }
+      });
+
+
       return res.status(200).json({ 
           id: nearestConversion.id,
-          size: nearestConversion.size_value,
+          size_system: system_conversions_gropsRecord.size_system,
+          size: system_conversions_gropsRecord.value,
           body_parameters: bodyParamsData
       });
 
