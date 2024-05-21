@@ -1,25 +1,30 @@
 module.exports = async (req, res, next, models) => {
   const updates = req.body;
 
-  try {
-    const uniqClothIds = [
-      ...new Set(updates.map((update) => update.uniq_cloth_id)),
-    ];
+  const firstRecord = updates[0];
 
-    await models.conversions.destroy({
-      where: {
-        uniq_cloth_id: uniqClothIds,
-      },
-    });
+  const uniqClothIds = [
+    {
+      uniq_cloth_id: firstRecord.uniq_cloth_id,
+      size_system: firstRecord.size_system,
+    },
+  ];
 
-    const updatePromises = updates.map(async (update) => {
+  await models.conversions.destroy({
+    where: {
+      uniq_cloth_id: firstRecord.uniq_cloth_id,
+    },
+  });
+
+  const sizeTypeIdPromises = uniqClothIds.map(
+    async ({ uniq_cloth_id, size_system }) => {
       const clothData = await models.clothes_data.findOne({
-        where: { uniq_cloth_id: update.uniq_cloth_id },
+        where: { uniq_cloth_id },
       });
 
       if (!clothData) {
         throw new Error(
-          `No cloth data found for uniq_cloth_id ${update.uniq_cloth_id}`
+          `No cloth data found for uniq_cloth_id ${uniq_cloth_id}`
         );
       }
 
@@ -38,27 +43,33 @@ module.exports = async (req, res, next, models) => {
       const sizeSystem = await models.size_systems.findOne({
         where: {
           body_part: bodyPart,
-          size_system: update.size_system,
+          size_system,
         },
       });
 
       if (!sizeSystem) {
         throw new Error(
-          `No size system found for body_part ${bodyPart} and size_system ${update.size_system}`
+          `No size system found for body_part ${bodyPart} and size_system ${size_system}`
         );
       }
 
-      const sizeTypeId = sizeSystem.id;
+      return { uniq_cloth_id, size_type_id: sizeSystem.id };
+    }
+  );
 
-      const updateWithSizeTypeId = { ...update, size_type_id: sizeTypeId };
-      delete updateWithSizeTypeId.id;
+  const sizeTypeIds = await Promise.all(sizeTypeIdPromises);
 
-      return models.conversions.create(updateWithSizeTypeId);
-    });
+  const updatePromises = updates.map(async (update) => {
+    const size_type_id = sizeTypeIds.find(
+      (p) => p.uniq_cloth_id === update.uniq_cloth_id
+    ).size_type_id;
 
-    await Promise.all(updatePromises);
-    res.status(200).json({ message: "Updates successful" });
-  } catch (error) {
-    res.status(500).json({ error: `Update failed: ${error.message}` });
-  }
+    const updateWithSizeTypeId = { ...update, size_type_id };
+    delete updateWithSizeTypeId.id;
+
+    return models.conversions.create(updateWithSizeTypeId);
+  });
+
+  await Promise.all(updatePromises);
+  res.status(200).json({ message: "Updates successful" });
 };
