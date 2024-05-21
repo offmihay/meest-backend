@@ -51,7 +51,6 @@ module.exports = function(sequelize, DataTypes) {
     sequelize,
     tableName: 'conversions',
     schema: 'public',
-    hasTrigger: true,
     timestamps: false,
     indexes: [
       {
