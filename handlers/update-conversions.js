@@ -1,53 +1,64 @@
 module.exports = async (req, res, next, models) => {
   const updates = req.body;
 
-  if (!Array.isArray(updates)) {
-    return res
-      .status(400)
-      .json({ error: "Body should be an array of updates" });
-  }
-
-  for (const update of updates) {
-    const requiredFields = [
-      "uniq_cloth_id",
-      "height",
-      "head_length",
-      "chest_length",
-      "waist_length",
-      "hip_length",
-      "pants_length",
-      "foot_length",
-      "size_type_id",
-      "size_value",
+  try {
+    const uniqClothIds = [
+      ...new Set(updates.map((update) => update.uniq_cloth_id)),
     ];
 
-    for (const field of requiredFields) {
-      if (!update.hasOwnProperty(field)) {
-        return res
-          .status(400)
-          .json({ error: `Missing field ${field} in one of the updates` });
-      }
-    }
-  }
+    await models.conversions.destroy({
+      where: {
+        uniq_cloth_id: uniqClothIds,
+      },
+    });
 
-  const updatePromises = updates.map(async (update) => {
-    if (update.id) {
-      const conversion = await models.conversions.findOne({
-        where: { id: update.id },
+    const updatePromises = updates.map(async (update) => {
+      const clothData = await models.clothes_data.findOne({
+        where: { uniq_cloth_id: update.uniq_cloth_id },
       });
-      if (conversion) {
-        return models.conversions.update(update, {
-          where: { id: update.id },
-        });
-      } else {
-        return models.conversions.create(update);
+
+      if (!clothData) {
+        throw new Error(
+          `No cloth data found for uniq_cloth_id ${update.uniq_cloth_id}`
+        );
       }
-    } else {
-      return models.conversions.create(update);
-    }
-  });
 
-  await Promise.all(updatePromises);
+      const clothId = clothData.cloth_id;
 
-  res.status(200).json({ message: "Updates successful" });
+      const cloth = await models.clothes.findOne({
+        where: { id: clothId },
+      });
+
+      if (!cloth) {
+        throw new Error(`No cloth found for cloth_id ${clothId}`);
+      }
+
+      const bodyPart = cloth.body_part;
+
+      const sizeSystem = await models.size_systems.findOne({
+        where: {
+          body_part: bodyPart,
+          size_system: update.size_system,
+        },
+      });
+
+      if (!sizeSystem) {
+        throw new Error(
+          `No size system found for body_part ${bodyPart} and size_system ${update.size_system}`
+        );
+      }
+
+      const sizeTypeId = sizeSystem.id;
+
+      const updateWithSizeTypeId = { ...update, size_type_id: sizeTypeId };
+      delete updateWithSizeTypeId.id;
+
+      return models.conversions.create(updateWithSizeTypeId);
+    });
+
+    await Promise.all(updatePromises);
+    res.status(200).json({ message: "Updates successful" });
+  } catch (error) {
+    res.status(500).json({ error: `Update failed: ${error.message}` });
+  }
 };

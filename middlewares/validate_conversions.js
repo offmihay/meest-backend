@@ -17,7 +17,7 @@ module.exports = () => async (req, res, next) => {
       "hip_length",
       "pants_length",
       "foot_length",
-      "size_type_id",
+      "size_system",
       "size_value",
     ];
 

@@ -51,8 +51,11 @@ router.get("/get-table", (req, res, next) =>
   getTableHandler(req, res, next, models)
 );
 
-router.post("/update-conversions", validateConversions(), (req, res, next) =>
-  updateConversionsHandler(req, res, next, models)
+router.post(
+  "/update-conversions",
+  authorizationHandler(models),
+  validateConversions(),
+  (req, res, next) => updateConversionsHandler(req, res, next, models)
 );
 
 
