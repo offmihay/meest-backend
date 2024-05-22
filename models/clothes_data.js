@@ -9,15 +9,27 @@ module.exports = function(sequelize, DataTypes) {
     },
     cloth_id: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      references: {
+        model: 'clothes',
+        key: 'id'
+      }
     },
     gender_id: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      references: {
+        model: 'genders',
+        key: 'id'
+      }
     },
     brand_id: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      references: {
+        model: 'brands',
+        key: 'id'
+      }
     }
   }, {
     sequelize,

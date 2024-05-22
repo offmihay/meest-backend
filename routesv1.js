@@ -24,6 +24,8 @@ const allUsersHandler = require("./handlers/all-users");
 const sizeHandler = require("./handlers/size");
 const getTableHandler = require("./handlers/get-table");
 const updateConversionsHandler = require("./handlers/update-conversions");
+const clothesExistingHandler = require("./handlers/clothes-existing");
+const updateBrandsHandler = require("./handlers/update-brands");
 
 router.get("/all-brands", (req, res, next) =>
   allBrandsHandler(req, res, next, models)
@@ -47,16 +49,23 @@ router.get("/get-table", (req, res, next) =>
   getTableHandler(req, res, next, models)
 );
 
-router.get("/get-table", (req, res, next) =>
-  getTableHandler(req, res, next, models)
-);
-
 router.post(
   "/update-conversions",
   authorizationHandler(models),
   validateConversions(),
   (req, res, next) => updateConversionsHandler(req, res, next, models)
 );
+
+router.get(
+  "/clothes-existing",
+  authorizationHandler(models),
+  (req, res, next) => clothesExistingHandler(req, res, next, models)
+);
+
+router.post("/update-brands", authorizationHandler(models), (req, res, next) =>
+  updateBrandsHandler(req, res, next, models, sequelize)
+);
+
 
 
 router.use(errorHandler);

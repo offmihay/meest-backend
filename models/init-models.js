@@ -20,6 +20,16 @@ function initModels(sequelize) {
   var system_conversions = _system_conversions(sequelize, DataTypes);
   var users = _users(sequelize, DataTypes);
 
+  clothes_data.belongsTo(brands, { as: "brand", foreignKey: "brand_id"});
+  brands.hasMany(clothes_data, { as: "clothes_data", foreignKey: "brand_id"});
+  clothes_data.belongsTo(clothes, { as: "cloth", foreignKey: "cloth_id"});
+  clothes.hasMany(clothes_data, { as: "clothes_data", foreignKey: "cloth_id"});
+  conversions.belongsTo(clothes_data, { as: "uniq_cloth", foreignKey: "uniq_cloth_id"});
+  clothes_data.hasMany(conversions, { as: "conversions", foreignKey: "uniq_cloth_id"});
+  clothes_data.belongsTo(genders, { as: "gender", foreignKey: "gender_id"});
+  genders.hasMany(clothes_data, { as: "clothes_data", foreignKey: "gender_id"});
+  conversions.belongsTo(size_systems, { as: "size_type", foreignKey: "size_type_id"});
+  size_systems.hasMany(conversions, { as: "conversions", foreignKey: "size_type_id"});
 
   return {
     allowed_size_values,

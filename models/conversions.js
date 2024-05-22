@@ -9,7 +9,11 @@ module.exports = function(sequelize, DataTypes) {
     },
     uniq_cloth_id: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      references: {
+        model: 'clothes_data',
+        key: 'uniq_cloth_id'
+      }
     },
     height: {
       type: DataTypes.REAL,
@@ -41,7 +45,11 @@ module.exports = function(sequelize, DataTypes) {
     },
     size_type_id: {
       type: DataTypes.INTEGER,
-      allowNull: true
+      allowNull: true,
+      references: {
+        model: 'size_systems',
+        key: 'id'
+      }
     },
     size_value: {
       type: DataTypes.STRING(255),
