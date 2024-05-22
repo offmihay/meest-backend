@@ -62,7 +62,7 @@ router.get(
   (req, res, next) => clothesExistingHandler(req, res, next, models)
 );
 
-router.post("/update-brands", authorizationHandler(models), (req, res, next) =>
+router.post("/update-brands", (req, res, next) =>
   updateBrandsHandler(req, res, next, models, sequelize)
 );
 

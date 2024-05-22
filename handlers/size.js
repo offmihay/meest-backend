@@ -87,6 +87,8 @@ module.exports = async (req, res, next, models) => {
     },
   });
 
+  console.log(system_conversionsRecord);
+
   if (!system_conversionsRecord) {
     return res
       .status(404)

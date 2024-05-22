@@ -36,6 +36,7 @@ module.exports = async (req, res, next, models) => {
       where: {
         gender_id: genderId,
         brand_id: brandInfo.id,
+        is_active: true,
       },
       include: [
         {

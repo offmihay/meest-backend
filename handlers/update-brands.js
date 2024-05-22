@@ -8,7 +8,6 @@ module.exports = async (req, res, next, models, sequelize) => {
 
   const transaction = await sequelize.transaction();
 
-  try {
     // Update brand information
     await models.brands.update(
       { key, name, img_url },
@@ -28,56 +27,43 @@ module.exports = async (req, res, next, models, sequelize) => {
       return acc;
     }, {});
 
-    // Prepare new clothes_data entries
-    const menEntries = men_clothes.map((cloth) => ({
-      cloth_id: clothesMap[cloth],
-      gender_id: 1,
-      brand_id: id,
-    }));
+    const createOrUpdateClothesData = async (clothes, genderId) => {
+      for (const cloth of clothes) {
+        const clothId = clothesMap[cloth];
+        const existingEntry = await models.clothes_data.findOne({
+          where: { cloth_id: clothId, gender_id: genderId, brand_id: id },
+          transaction,
+        });
 
-    const womenEntries = women_clothes.map((cloth) => ({
-      cloth_id: clothesMap[cloth],
-      gender_id: 2,
-      brand_id: id,
-    }));
+        if (existingEntry) {
+          await existingEntry.update({ is_active: true }, { transaction });
+        } else {
+          await models.clothes_data.create(
+            {
+              cloth_id: clothId,
+              gender_id: genderId,
+              brand_id: id,
+              is_active: true,
+            },
+            { transaction }
+          );
+        }
+      }
+    };
 
-    const childEntries = child_clothes.map((cloth) => ({
-      cloth_id: clothesMap[cloth],
-      gender_id: 3,
-      brand_id: id,
-    }));
-
-    const clothesDataToDelete = await models.clothes_data.findAll({
-      where: { brand_id: id },
-      transaction,
-    });
-
-    const clothesDataIds = clothesDataToDelete.map(
-      (item) => item.uniq_cloth_id
+    // Mark all existing clothes_data entries as inactive
+    await models.clothes_data.update(
+      { is_active: false },
+      { where: { brand_id: id }, transaction }
     );
 
-    await models.conversions.destroy({
-      where: { uniq_cloth_id: clothesDataIds },
-      transaction,
-    });
-
-    await models.clothes_data.destroy({
-      where: { brand_id: id },
-      transaction,
-    });
-
-    await models.clothes_data.bulkCreate(
-      [...menEntries, ...womenEntries, ...childEntries],
-      { transaction }
-    );
+    // Create or update entries
+    await createOrUpdateClothesData(men_clothes, 1);
+    await createOrUpdateClothesData(women_clothes, 2);
+    await createOrUpdateClothesData(child_clothes, 3);
 
     await transaction.commit();
     res.json({
       message: "Brand and related clothes data updated successfully",
     });
-  } catch (error) {
-    await transaction.rollback();
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
 };

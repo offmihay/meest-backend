@@ -30,6 +30,10 @@ module.exports = function(sequelize, DataTypes) {
         model: 'brands',
         key: 'id'
       }
+    },
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false
     }
   }, {
     sequelize,

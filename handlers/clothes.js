@@ -20,7 +20,11 @@ module.exports = async (req, res, next, models) => {
   }
 
   const clothesData = await models.clothes_data.findAll({
-    where: { gender_id: genderInfo.id, brand_id: brandInfo.id },
+    where: {
+      gender_id: genderInfo.id,
+      brand_id: brandInfo.id,
+      is_active: true,
+    },
     attributes: ["uniq_cloth_id", "cloth_id"],
   });
 
