@@ -27,6 +27,7 @@ const updateConversionsHandler = require("./handlers/tableMngHandlers/update-con
 const clothesExistingHandler = require("./handlers/clothes-existing");
 const updateBrandsHandler = require("./handlers/tableMngHandlers/update-brands");
 const systemConversions = require("./handlers/tableMngHandlers/system-conversions");
+const systemConversionsUpdate = require("./handlers/tableMngHandlers/system-conversions-update");
 
 router.get("/all-brands", (req, res, next) =>
   allBrandsHandler(req, res, next, models)
@@ -69,6 +70,10 @@ router.post("/update-brands", (req, res, next) =>
 
 router.get("/system-conversions", (req, res, next) =>
     systemConversions(req, res, next, models)
+);
+
+router.post('/update-system-conversions',(req, res, next) =>
+    systemConversionsUpdate(req, res, next, models)
 );
 
 
