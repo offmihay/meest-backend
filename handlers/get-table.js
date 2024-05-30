@@ -33,13 +33,12 @@ module.exports = async (req, res, next, models) => {
     },
   });
 
-  const possibleSizeSystems = await models.size_systems.findAll({
-    where: {
-      body_part: clothRecord.body_part,
-    },
-    attributes: ["size_system"],
-    group: ["size_system"],
+  const systemDefiniton = await models.system_conversions.findAll({
+    where: { body_part: clothRecord.body_part },
   });
+
+  const allSizeSystems = systemDefiniton.map((def) => def.size_system);
+  const possibleSizeSystems = [...new Set(allSizeSystems)];
 
   const possibleSizeValues = await models.allowed_size_values.findAll({
     attributes: ["value"],
@@ -57,14 +56,11 @@ module.exports = async (req, res, next, models) => {
           hip_length: null,
           pants_length: null,
           foot_length: null,
-          size_system: "INT",
+          isEmpty: true,
         },
       ],
-      possibleSizeSystems: possibleSizeSystems.map(
-        (system) => system.size_system
-      ),
+      possibleSizeSystems: possibleSizeSystems,
       possibleSizeValues: possibleSizeValues.map((value) => value.value),
-      isEmpty: true,
     });
   }
 
@@ -92,13 +88,12 @@ module.exports = async (req, res, next, models) => {
     foot_length: conversion.foot_length,
     size_system: sizeSystemMap[conversion.size_type_id] || null,
     size_value: conversion.size_value,
+    isEmpty: false,
   }));
 
   return res.status(200).json({
     conversions: conversionData,
-    possibleSizeSystems: possibleSizeSystems.map(
-      (system) => system.size_system
-    ),
+    possibleSizeSystems: possibleSizeSystems,
     possibleSizeValues: possibleSizeValues.map((value) => value.value),
     isEmpty: false,
   });
