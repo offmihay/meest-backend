@@ -1,6 +1,5 @@
 module.exports = async (req, res, next, models, sequelize) => {
-  const { id, key, name, img_url, men_clothes, women_clothes, child_clothes } =
-    req.body;
+  const { id, key, name, img_url, men_clothes, women_clothes, child_clothes, is_active } = req.body;
 
   if (!id || !key || !name || !img_url) {
     return res.status(400).json({ error: "Missing required fields" });
@@ -8,11 +7,8 @@ module.exports = async (req, res, next, models, sequelize) => {
 
   const transaction = await sequelize.transaction();
 
-    // Update brand information
-    await models.brands.update(
-      { key, name, img_url },
-      { where: { id }, transaction }
-    );
+  try {
+    await models.brands.update({ key, name, img_url, is_active }, { where: { id }, transaction });
 
     // Get clothes IDs
     const clothes = await models.clothes.findAll({
@@ -66,4 +62,7 @@ module.exports = async (req, res, next, models, sequelize) => {
     res.json({
       message: "Brand and related clothes data updated successfully",
     });
+  } catch (error) {
+    await transaction.rollback();
+  }
 };
