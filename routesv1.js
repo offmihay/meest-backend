@@ -16,7 +16,7 @@ router.use(cors());
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 
-const allBrandsHandler = require("./handlers/all_brands");
+const allBrandsHandler = require("./handlers/all-brands");
 const brandsHandler = require("./handlers/brands");
 const clothesHandler = require("./handlers/clothes");
 const loginHandler = require("./handlers/login");
@@ -26,28 +26,19 @@ const getTableHandler = require("./handlers/get-table");
 const updateConversionsHandler = require("./handlers/update-conversions");
 const clothesExistingHandler = require("./handlers/clothes-existing");
 const updateBrandsHandler = require("./handlers/update-brands");
+const deleteBrandHandler = require("./handlers/delete-brand");
 
-router.get("/all-brands", (req, res, next) =>
-  allBrandsHandler(req, res, next, models)
-);
-router.get("/brands", (req, res, next) =>
-  brandsHandler(req, res, next, models)
-);
-router.get("/clothes", (req, res, next) =>
-  clothesHandler(req, res, next, models)
-);
+router.get("/all-brands", (req, res, next) => allBrandsHandler(req, res, next, models));
+router.get("/brands", (req, res, next) => brandsHandler(req, res, next, models));
+router.get("/clothes", (req, res, next) => clothesHandler(req, res, next, models));
 router.post("/login", (req, res, next) => loginHandler(req, res, next, models));
 
 router.get("/all-users", authorizationHandler(models), (req, res, next) =>
   allUsersHandler(req, res, next, models)
 );
-router.post("/calculate-size", (req, res, next) =>
-  sizeHandler(req, res, next, models)
-);
+router.post("/calculate-size", (req, res, next) => sizeHandler(req, res, next, models));
 
-router.get("/get-table", (req, res, next) =>
-  getTableHandler(req, res, next, models)
-);
+router.get("/get-table", (req, res, next) => getTableHandler(req, res, next, models));
 
 router.post(
   "/update-conversions",
@@ -56,17 +47,17 @@ router.post(
   (req, res, next) => updateConversionsHandler(req, res, next, models)
 );
 
-router.get(
-  "/clothes-existing",
-  authorizationHandler(models),
-  (req, res, next) => clothesExistingHandler(req, res, next, models)
+router.get("/clothes-existing", authorizationHandler(models), (req, res, next) =>
+  clothesExistingHandler(req, res, next, models)
 );
 
-router.post("/update-brands", (req, res, next) =>
+router.post("/update-brands", authorizationHandler(models), (req, res, next) =>
   updateBrandsHandler(req, res, next, models, sequelize)
 );
 
-
+router.get("/delete-brand", authorizationHandler(models), (req, res, next) =>
+  deleteBrandHandler(req, res, next, models)
+);
 
 router.use(errorHandler);
 

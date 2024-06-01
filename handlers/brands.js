@@ -22,7 +22,7 @@ module.exports = async (req, res, next, models) => {
   const brandIds = brandsData.map((item) => item.brand_id);
 
   const brandsInfo = await models.brands.findAll({
-    where: { id: brandIds },
+    where: { id: brandIds, is_active: true },
     attributes: ["id", "key", "name"],
   });
 

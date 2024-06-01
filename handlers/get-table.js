@@ -33,37 +33,29 @@ module.exports = async (req, res, next, models) => {
     },
   });
 
-  const possibleSizeSystems = await models.size_systems.findAll({
-    where: {
-      body_part: clothRecord.body_part,
-    },
-    attributes: ["size_system"],
-    group: ["size_system"],
+  const systemDefiniton = await models.system_conversions.findAll({
+    where: { body_part: clothRecord.body_part },
   });
 
-  const possibleSizeValues = await models.allowed_size_values.findAll({
-    attributes: ["value"],
-  });
+  const allSizeSystems = systemDefiniton.map((item) => item.size_system);
+  const possibleSizeSystems = [...new Set(allSizeSystems)];
+
+  const possibleSizeValues = (system) =>
+    systemDefiniton.filter((item) => item.size_system === system).map((item) => item.value);
 
   if (!conversions || conversions.length === 0) {
     return res.status(200).json({
       conversions: [
         {
           uniq_cloth_id: clothesDataRecord.uniq_cloth_id,
-          height: null,
-          head_length: null,
-          chest_length: null,
-          waist_length: null,
-          hip_length: null,
-          pants_length: null,
-          foot_length: null,
-          size_system: "INT",
+          size_system: possibleSizeSystems[0],
         },
       ],
-      possibleSizeSystems: possibleSizeSystems.map(
-        (system) => system.size_system
-      ),
-      possibleSizeValues: possibleSizeValues.map((value) => value.value),
+      possibleSizeSystems: possibleSizeSystems,
+      possibleSizeValues: possibleSizeSystems.reduce((acc, item) => {
+        acc[item] = possibleSizeValues(item);
+        return acc;
+      }, {}),
       isEmpty: true,
     });
   }
@@ -96,10 +88,11 @@ module.exports = async (req, res, next, models) => {
 
   return res.status(200).json({
     conversions: conversionData,
-    possibleSizeSystems: possibleSizeSystems.map(
-      (system) => system.size_system
-    ),
-    possibleSizeValues: possibleSizeValues.map((value) => value.value),
+    possibleSizeSystems: possibleSizeSystems,
+    possibleSizeValues: possibleSizeSystems.reduce((acc, item) => {
+      acc[item] = possibleSizeValues(item);
+      return acc;
+    }, {}),
     isEmpty: false,
   });
 };
