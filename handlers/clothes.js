@@ -4,9 +4,7 @@ var initModels = require("../models/init-models");
 module.exports = async (req, res, next, models) => {
   const { gender, brand } = req.query;
   if (!gender || !brand) {
-    return res
-      .status(400)
-      .json({ error: "Gender or brand parameter is missing" });
+    return res.status(400).json({ error: "Gender or brand parameter is missing" });
   }
 
   const genderInfo = await models.genders.findOne({ where: { key: gender } });
