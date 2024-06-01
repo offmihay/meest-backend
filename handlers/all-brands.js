@@ -6,6 +6,7 @@ module.exports = async (req, res, next, models) => {
     name: brand.name,
     img_url: brand.img_url,
     is_active: brand.is_active,
+    is_new: false,
   }));
   transformedBrands.sort((a, b) => a.id - b.id);
   res.json(transformedBrands);

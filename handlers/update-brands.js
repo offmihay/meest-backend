@@ -1,14 +1,25 @@
 module.exports = async (req, res, next, models, sequelize) => {
-  const { id, key, name, img_url, men_clothes, women_clothes, child_clothes, is_active } = req.body;
+  const { id, key, name, img_url, men_clothes, women_clothes, child_clothes } = req.body;
+  const is_active = "is_active" in req.body ? req.body.is_active : false;
 
-  if (!id || !key || !name || !img_url) {
+  if (!key || !name || !img_url) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
   const transaction = await sequelize.transaction();
 
   try {
-    await models.brands.update({ key, name, img_url, is_active }, { where: { id }, transaction });
+    let brandId = id;
+
+    if (brandId != null) {
+      await models.brands.update(
+        { key, name, img_url, is_active },
+        { where: { id: brandId }, transaction }
+      );
+    } else {
+      const brand = await models.brands.create({ key, name, img_url, is_active }, { transaction });
+      brandId = brand.id; // Get the id of the newly created brand
+    }
 
     // Get clothes IDs
     const clothes = await models.clothes.findAll({
@@ -27,7 +38,7 @@ module.exports = async (req, res, next, models, sequelize) => {
       for (const cloth of clothes) {
         const clothId = clothesMap[cloth];
         const existingEntry = await models.clothes_data.findOne({
-          where: { cloth_id: clothId, gender_id: genderId, brand_id: id },
+          where: { cloth_id: clothId, gender_id: genderId, brand_id: brandId },
           transaction,
         });
 
@@ -38,7 +49,7 @@ module.exports = async (req, res, next, models, sequelize) => {
             {
               cloth_id: clothId,
               gender_id: genderId,
-              brand_id: id,
+              brand_id: brandId,
               is_active: true,
             },
             { transaction }
@@ -47,10 +58,9 @@ module.exports = async (req, res, next, models, sequelize) => {
       }
     };
 
-    // Mark all existing clothes_data entries as inactive
     await models.clothes_data.update(
       { is_active: false },
-      { where: { brand_id: id }, transaction }
+      { where: { brand_id: brandId }, transaction }
     );
 
     // Create or update entries
@@ -64,5 +74,7 @@ module.exports = async (req, res, next, models, sequelize) => {
     });
   } catch (error) {
     await transaction.rollback();
+    console.error("Error during transaction:", error);
+    res.status(500).json({ error: "An error occurred while processing your request" });
   }
 };
