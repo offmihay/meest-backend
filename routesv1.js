@@ -22,10 +22,12 @@ const clothesHandler = require("./handlers/clothes");
 const loginHandler = require("./handlers/login");
 const allUsersHandler = require("./handlers/all-users");
 const sizeHandler = require("./handlers/size");
-const getTableHandler = require("./handlers/get-table");
-const updateConversionsHandler = require("./handlers/update-conversions");
+const getTableHandler = require("./handlers/tableMngHandlers/get-table");
+const updateConversionsHandler = require("./handlers/tableMngHandlers/update-conversions");
 const clothesExistingHandler = require("./handlers/clothes-existing");
-const updateBrandsHandler = require("./handlers/update-brands");
+const updateBrandsHandler = require("./handlers/tableMngHandlers/update-brands");
+const systemConversions = require("./handlers/tableMngHandlers/system-conversions");
+const systemConversionsUpdate = require("./handlers/tableMngHandlers/system-conversions-update");
 const deleteBrandHandler = require("./handlers/delete-brand");
 
 router.get("/all-brands", (req, res, next) => allBrandsHandler(req, res, next, models));
@@ -53,6 +55,12 @@ router.get("/clothes-existing", authorizationHandler(models), (req, res, next) =
 
 router.post("/update-brands", authorizationHandler(models), (req, res, next) =>
   updateBrandsHandler(req, res, next, models, sequelize)
+);
+
+router.get("/system-conversions", (req, res, next) => systemConversions(req, res, next, models));
+
+router.post("/update-system-conversions", (req, res, next) =>
+  systemConversionsUpdate(req, res, next, models)
 );
 
 router.get("/delete-brand", authorizationHandler(models), (req, res, next) =>
