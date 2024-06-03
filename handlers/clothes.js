@@ -60,13 +60,21 @@ module.exports = async (req, res, next, models) => {
     const sizeSystems = systemDefiniton.map((def) => def.size_system);
     const uniqueSizeSystems = [...new Set(sizeSystems)];
 
+    let uniqueSizeSystemsNames = {};
+
+    for (i of uniqueSizeSystems) {
+      let temp = await models.size_systems.findOne({
+        where: { size_system: i },
+      });
+      uniqueSizeSystemsNames[i] = temp.name;
+    }
+
     if (clothDefinition) {
       clothesResponse.push({
         key: clothDefinition.key,
         name: clothDefinition.name,
-        name_UA: clothDefinition.name,
         body_parts: bodyParts,
-        unique_size_systems: uniqueSizeSystems,
+        unique_size_systems: uniqueSizeSystemsNames,
       });
     }
   }
