@@ -64,7 +64,7 @@ module.exports = async (req, res, next, models) => {
       clothesResponse.push({
         key: clothDefinition.key,
         name: clothDefinition.name,
-        name_UA: clothDefinition.name_UA,
+        name_UA: "asd",
         body_parts: bodyParts,
         unique_size_systems: uniqueSizeSystems,
       });
