@@ -1,5 +1,8 @@
-module.exports = async (req, res, next, models) => {
+module.exports = async (req, res, next, models, sequelize) => {
+    try {
   const updates = req.body;
+
+  const transaction = await sequelize.transaction();
 
   const firstRecord = updates[0];
 
@@ -14,7 +17,7 @@ module.exports = async (req, res, next, models) => {
     where: {
       uniq_cloth_id: firstRecord.uniq_cloth_id,
     },
-  });
+  }, { transaction });
 
   const sizeTypeIdPromises = uniqClothIds.map(
     async ({ uniq_cloth_id, size_system }) => {
@@ -67,9 +70,17 @@ module.exports = async (req, res, next, models) => {
     const updateWithSizeTypeId = { ...update, size_type_id };
     delete updateWithSizeTypeId.id;
 
-    return models.conversions.create(updateWithSizeTypeId);
+    return models.conversions.create(updateWithSizeTypeId, { transaction });
   });
 
   await Promise.all(updatePromises);
+  await transaction.commit();
   res.status(200).json({ message: "Updates successful" });
+
+
+} catch (error) {
+    // Rollback the transaction in case of an error
+    await transaction.rollback();
+    throw error; // You may want to see the error in your error handling system
+}
 };
