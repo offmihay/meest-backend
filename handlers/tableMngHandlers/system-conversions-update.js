@@ -44,9 +44,9 @@ module.exports = async (req, res, next, models, sequelize) => {
 
         console.log(maxConversionGroup)
         const formattedSizes = newSizes.flatMap(size => {
-                if (!size.conversion_group) {
-                    size.conversion_group = ++maxConversionGroup;
-                }
+            if (!size.conversion_group) {
+                size.conversion_group = ++maxConversionGroup;
+            }
             const { conversion_group, ...rest } = size;
             return Object.entries(rest).map(([system, value]) => {
                 return {

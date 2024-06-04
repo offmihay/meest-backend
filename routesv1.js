@@ -53,16 +53,15 @@ router.get("/clothes-existing", authorizationHandler(models), (req, res, next) =
   clothesExistingHandler(req, res, next, models)
 );
 
-router.post("/update-brands", authorizationHandler(models), (req, res, next) =>
-  updateBrandsHandler(req, res, next, models, sequelize)
-);
-
 router.get("/system-conversions", (req, res, next) => systemConversions(req, res, next, models));
 
-router.post("/update-system-conversions", (req, res, next) =>
-  systemConversionsUpdate(req, res, next, models)
+router.post("/update-brands", (req, res, next) =>
+    updateBrandsHandler(req, res, next, models, sequelize)
 );
 
+router.post('/update-system-conversions',(req, res, next) =>
+    systemConversionsUpdate(req, res, next, models, sequelize)
+);
 router.get("/delete-brand", authorizationHandler(models), (req, res, next) =>
   deleteBrandHandler(req, res, next, models)
 );
