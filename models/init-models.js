@@ -1,5 +1,6 @@
 var DataTypes = require("sequelize").DataTypes;
 var _allowed_size_values = require("./allowed_size_values");
+var _body_parts = require("./body_parts");
 var _brands = require("./brands");
 var _clothes = require("./clothes");
 var _clothes_data = require("./clothes_data");
@@ -11,6 +12,7 @@ var _users = require("./users");
 
 function initModels(sequelize) {
   var allowed_size_values = _allowed_size_values(sequelize, DataTypes);
+  var body_parts = _body_parts(sequelize, DataTypes);
   var brands = _brands(sequelize, DataTypes);
   var clothes = _clothes(sequelize, DataTypes);
   var clothes_data = _clothes_data(sequelize, DataTypes);
@@ -20,6 +22,8 @@ function initModels(sequelize) {
   var system_conversions = _system_conversions(sequelize, DataTypes);
   var users = _users(sequelize, DataTypes);
 
+  clothes.belongsTo(body_parts, { as: "body_part_body_part", foreignKey: "body_part"});
+  body_parts.hasMany(clothes, { as: "clothes", foreignKey: "body_part"});
   clothes_data.belongsTo(brands, { as: "brand", foreignKey: "brand_id"});
   brands.hasMany(clothes_data, { as: "clothes_data", foreignKey: "brand_id"});
   clothes_data.belongsTo(clothes, { as: "cloth", foreignKey: "cloth_id"});
@@ -33,6 +37,7 @@ function initModels(sequelize) {
 
   return {
     allowed_size_values,
+    body_parts,
     brands,
     clothes,
     clothes_data,
