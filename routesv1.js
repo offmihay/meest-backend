@@ -46,7 +46,7 @@ router.post(
   "/update-conversions",
   authorizationHandler(models),
   validateConversions(),
-  (req, res, next) => updateConversionsHandler(req, res, next, models)
+  (req, res, next) => updateConversionsHandler(req, res, next, models, sequelize)
 );
 
 router.get("/clothes-existing", authorizationHandler(models), (req, res, next) =>
