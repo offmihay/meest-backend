@@ -1,30 +1,30 @@
 module.exports = async (req, res, next, models) => {
-  console.log(models);
-  const { gender } = req.query;
+  console.log(models)
+  const { gender } = req.query
   if (!gender) {
-    return res.status(400).json({ error: "Gender parameter is missing" });
+    return res.status(400).json({ error: 'Gender parameter is missing' })
   }
 
   const genderInfo = await models.genders.findOne({
     where: { key: gender },
-  });
+  })
 
   if (!genderInfo) {
-    return res.status(400).json({ error: "Invalid gender key" });
+    return res.status(400).json({ error: 'Invalid gender key' })
   }
 
   const brandsData = await models.clothes_data.findAll({
     where: { gender_id: genderInfo.id, is_active: true },
-    attributes: ["brand_id"],
-    group: ["brand_id"],
-  });
+    attributes: ['brand_id'],
+    group: ['brand_id'],
+  })
 
-  const brandIds = brandsData.map((item) => item.brand_id);
+  const brandIds = brandsData.map(item => item.brand_id)
 
   const brandsInfo = await models.brands.findAll({
     where: { id: brandIds, is_active: true },
-    attributes: ["id", "key", "name"],
-  });
+    attributes: ['id', 'key', 'name'],
+  })
 
-  res.json(brandsInfo);
-};
+  res.json(brandsInfo)
+}
