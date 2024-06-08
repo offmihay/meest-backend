@@ -1,13 +1,11 @@
 module.exports = async (req, res, next, models, sequelize) => {
-  const { body_part } = req.query
+  const { body_part, newSizes } = req.body
   const transaction = await sequelize.transaction()
   if (!body_part) {
     return res
       .status(400)
       .json({ error: 'Missing required query parameters: body_part' })
   }
-
-  const newSizes = req.body
 
   const isValidSize = size => {
     const validKeys = ['INT', 'EU', 'UK', 'US', 'conversion_group']
