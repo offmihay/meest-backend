@@ -33,29 +33,45 @@ module.exports = async (req, res, next, models) => {
     },
   });
 
-  let nearestConversion = null;
-  let minDistance = Number.MAX_VALUE;
-
-  for (const conversion of conversions) {
-    let distance = 0;
-
-    for (const [key, value] of Object.entries(inputData)) {
-      const conversionValue = parseFloat(conversion[key]);
-      const inputValue = parseFloat(value);
-      distance += Math.abs(conversionValue - inputValue);
-    }
-
-    if (distance < minDistance) {
-      minDistance = distance;
-      nearestConversion = conversion;
-    }
+  if (!conversions.length) {
+    return res.status(404).json({ error: "No size conversion found for the given parameters" });
   }
+
+  function findClothingSize(bodyMeasurements, sizeChart) {
+    let bestSize = null;
+    let minDistance = Infinity;
+
+    for (const size of sizeChart) {
+      let distance = 0;
+      let fits = true;
+
+      for (const key of Object.keys(bodyMeasurements)) {
+        if (size[key]) {
+          const sizeValue = parseFloat(size[key]);
+          const bodyValue = parseFloat(bodyMeasurements[key]);
+          if (bodyValue > sizeValue) {
+            fits = false; // If the body measurement is greater than the size measurement, it won't fit
+            break;
+          }
+          distance += Math.abs(sizeValue - bodyValue);
+        }
+      }
+
+      if (fits && distance < minDistance) {
+        minDistance = distance;
+        bestSize = size;
+      }
+    }
+
+    return bestSize;
+  }
+
+  const nearestConversion = findClothingSize(inputData, conversions);
 
   if (!nearestConversion) {
-    return res
-      .status(404)
-      .json({ error: "No size conversion found for the given parameters" });
+    return res.status(404).json({ error: "No size conversion found for the given parameters" });
   }
+
   const bodyParameters = [
     "height",
     "head_length",
@@ -79,7 +95,11 @@ module.exports = async (req, res, next, models) => {
     },
   });
 
-  const system_conversionsRecord = await models.system_conversions.findOne({
+  if (!sizeSystemRecord) {
+    return res.status(404).json({ error: "Invalid size system" });
+  }
+
+  const systemConversionsRecord = await models.system_conversions.findOne({
     where: {
       body_part: sizeSystemRecord.body_part,
       size_system: sizeSystemRecord.size_system,
@@ -87,26 +107,25 @@ module.exports = async (req, res, next, models) => {
     },
   });
 
-  console.log(system_conversionsRecord);
-
-  if (!system_conversionsRecord) {
-    return res
-      .status(404)
-      .json({ error: "Not found convertion for this size system" });
+  if (!systemConversionsRecord) {
+    return res.status(404).json({ error: "Not found conversion for this size system" });
   }
 
-  const system_conversions_gropsRecord =
-    await models.system_conversions.findOne({
-      where: {
-        conversion_group: system_conversionsRecord.conversion_group,
-        size_system: size_system,
-      },
-    });
+  const systemConversionsGroupsRecord = await models.system_conversions.findOne({
+    where: {
+      conversion_group: systemConversionsRecord.conversion_group,
+      size_system: size_system,
+    },
+  });
+
+  if (!systemConversionsGroupsRecord) {
+    return res.status(404).json({ error: "Not found conversion group for this size system" });
+  }
 
   return res.status(200).json({
     id: nearestConversion.id,
-    size_system: system_conversions_gropsRecord.size_system,
-    size: system_conversions_gropsRecord.value,
+    size_system: systemConversionsGroupsRecord.size_system,
+    size: systemConversionsGroupsRecord.value,
     body_parameters: bodyParamsData,
   });
 };
