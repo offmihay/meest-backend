@@ -54,7 +54,6 @@ router.get('/get-table', (req, res, next) =>
 router.post(
   '/update-conversions',
   authorizationHandler(models),
-  validateConversions(),
   (req, res, next) =>
     updateConversionsHandler(req, res, next, models, sequelize),
 )
@@ -65,7 +64,7 @@ router.get(
   (req, res, next) => clothesExistingHandler(req, res, next, models),
 )
 
-router.post('/update-brands', (req, res, next) =>
+router.post('/update-brands', authorizationHandler(models), (req, res, next) =>
   updateBrandsHandler(req, res, next, models, sequelize),
 )
 
@@ -73,12 +72,17 @@ router.get('/delete-brand', authorizationHandler(models), (req, res, next) =>
   deleteBrandHandler(req, res, next, models),
 )
 
-router.get('/system-conversions', (req, res, next) =>
-  systemConversions(req, res, next, models),
+router.get(
+  '/system-conversions',
+  authorizationHandler(models),
+  (req, res, next) => systemConversions(req, res, next, models),
 )
 
-router.post('/update-system-conversions', (req, res, next) =>
-  systemConversionsUpdate(req, res, next, models, sequelize),
+router.post(
+  '/update-system-conversions',
+  authorizationHandler(models),
+  (req, res, next) =>
+    systemConversionsUpdate(req, res, next, models, sequelize),
 )
 
 router.use(errorHandler)

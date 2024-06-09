@@ -26,7 +26,7 @@ module.exports = async (req, res, next, models, sequelize) => {
     return true
   }
 
-  if (!Array.isArray(newSizes) || !newSizes.every(isValidSize)) {
+  if (!Array.isArray(newSizes)) {
     return res.status(400).json({ error: 'Invalid format for newSizes array' })
   }
 
