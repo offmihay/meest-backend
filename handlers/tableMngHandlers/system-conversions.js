@@ -30,12 +30,26 @@ module.exports = async (req, res, next, models) => {
     conversionGroups[record.conversion_group][record.size_system] = record.value
   })
 
-  // Convert the aggregated data into an array of conversion groups
-  const aggregateSizes = Object.values(conversionGroups)
+  const transformedSizes = Object.entries(conversionGroups).map(
+    ([key, value]) => ({
+      key,
+      ...value,
+    }),
+  )
+
+  const awailableSystemsModels = await models.size_systems.findAll({
+    where: { body_part: body_part },
+  })
+
+  const awailableSystems = []
+  for (item of awailableSystemsModels) {
+    awailableSystems.push(item.size_system)
+  }
 
   // Return the aggregated conversion data
   return res.status(200).json({
     body_part: body_part,
-    sizes: aggregateSizes,
+    sizes: transformedSizes,
+    awailable_systems: awailableSystems,
   })
 }
