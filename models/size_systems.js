@@ -2,6 +2,7 @@ const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
   return sequelize.define('size_systems', {
     id: {
+      autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
@@ -14,9 +15,13 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(255),
       allowNull: true
     },
-    body_part: {
+    system_category: {
       type: DataTypes.STRING(255),
-      allowNull: true
+      allowNull: true,
+      references: {
+        model: 'system_categories',
+        key: 'key'
+      }
     }
   }, {
     sequelize,

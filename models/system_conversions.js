@@ -6,10 +6,14 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: false,
       primaryKey: true
     },
-    body_part: {
+    system_category: {
       type: DataTypes.STRING(255),
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+      references: {
+        model: 'system_categories',
+        key: 'key'
+      }
     },
     size_system: {
       type: DataTypes.STRING(50),
@@ -30,7 +34,7 @@ module.exports = function(sequelize, DataTypes) {
         name: "system_conversions_pk",
         unique: true,
         fields: [
-          { name: "body_part" },
+          { name: "system_category" },
           { name: "size_system" },
           { name: "conversion_group" },
         ]

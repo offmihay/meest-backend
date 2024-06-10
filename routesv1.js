@@ -29,6 +29,7 @@ const updateBrandsHandler = require('./handlers/tableMngHandlers/update-brands')
 const systemConversions = require('./handlers/tableMngHandlers/system-conversions')
 const systemConversionsUpdate = require('./handlers/tableMngHandlers/system-conversions-update')
 const deleteBrandHandler = require('./handlers/delete-brand')
+const systemCategoriesHandler = require('./handlers/system_categories')
 
 router.get('/all-brands', (req, res, next) =>
   allBrandsHandler(req, res, next, models),
@@ -83,6 +84,12 @@ router.post(
   authorizationHandler(models),
   (req, res, next) =>
     systemConversionsUpdate(req, res, next, models, sequelize),
+)
+
+router.get(
+  '/system-categories',
+  // authorizationHandler(models),
+  (req, res, next) => systemCategoriesHandler(req, res, next, models),
 )
 
 router.use(errorHandler)

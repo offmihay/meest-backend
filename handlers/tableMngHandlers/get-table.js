@@ -34,7 +34,7 @@ module.exports = async (req, res, next, models) => {
   })
 
   const systemDefiniton = await models.system_conversions.findAll({
-    where: { body_part: clothRecord.body_part },
+    where: { system_category: clothRecord.system_category },
   })
 
   const allSizeSystems = systemDefiniton.map(item => item.size_system)
