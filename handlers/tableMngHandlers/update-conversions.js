@@ -45,18 +45,18 @@ module.exports = async (req, res, next, models, sequelize) => {
             throw new Error(`No cloth found for cloth_id ${clothId}`)
           }
 
-          const bodyPart = cloth.body_part
+          const bodyPart = cloth.system_category
 
           const sizeSystem = await models.size_systems.findOne({
             where: {
-              body_part: bodyPart,
+              system_category: bodyPart,
               size_system,
             },
           })
 
           if (!sizeSystem) {
             throw new Error(
-              `No size system found for body_part ${bodyPart} and size_system ${size_system}`,
+              `No size system found for system_category ${bodyPart} and size_system ${size_system}`,
             )
           }
 

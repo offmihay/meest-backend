@@ -105,7 +105,7 @@ module.exports = async (req, res, next, models) => {
 
   const systemConversionsRecord = await models.system_conversions.findOne({
     where: {
-      body_part: sizeSystemRecord.body_part,
+      system_category: sizeSystemRecord.system_category,
       size_system: sizeSystemRecord.size_system,
       value: nearestConversion.size_value,
     },

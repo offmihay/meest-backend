@@ -1,44 +1,40 @@
 module.exports = async (req, res, next, models) => {
-  const { body_part } = req.query
+  const { system_category } = req.query
 
   // Check if the body part parameter is present
-  if (!body_part) {
+  if (!system_category) {
     return res
       .status(400)
-      .json({ error: 'Missing required parameter: body_part' })
+      .json({ error: 'Missing required parameter: system_category' })
   }
 
   // Query the database for conversion records for the specified body part
   const systemConversionsRecords = await models.system_conversions.findAll({
-    where: { body_part: body_part },
+    where: { system_category: system_category },
   })
 
-  // Check if the query returned an empty array
+  let transformedSizes
+
   if (systemConversionsRecords.length === 0) {
-    return res
-      .status(404)
-      .json({ error: 'No conversions found for the specified body part' })
-  }
+    transformedSizes = []
+  } else {
+    const conversionGroups = {}
+    systemConversionsRecords.forEach(record => {
+      if (!conversionGroups[record.conversion_group]) {
+        conversionGroups[record.conversion_group] = {}
+      }
+      conversionGroups[record.conversion_group][record.size_system] =
+        record.value
+    })
 
-  const conversionGroups = {}
-
-  // Aggregate conversion records by conversion group
-  systemConversionsRecords.forEach(record => {
-    if (!conversionGroups[record.conversion_group]) {
-      conversionGroups[record.conversion_group] = {}
-    }
-    conversionGroups[record.conversion_group][record.size_system] = record.value
-  })
-
-  const transformedSizes = Object.entries(conversionGroups).map(
-    ([key, value]) => ({
+    transformedSizes = Object.entries(conversionGroups).map(([key, value]) => ({
       key,
       ...value,
-    }),
-  )
+    }))
+  }
 
   const awailableSystemsModels = await models.size_systems.findAll({
-    where: { body_part: body_part },
+    where: { system_category: system_category },
   })
 
   const awailableSystems = []
@@ -48,7 +44,7 @@ module.exports = async (req, res, next, models) => {
 
   // Return the aggregated conversion data
   return res.status(200).json({
-    body_part: body_part,
+    system_category: system_category,
     sizes: transformedSizes,
     awailable_systems: awailableSystems,
   })

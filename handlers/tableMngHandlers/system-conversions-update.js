@@ -1,10 +1,10 @@
 module.exports = async (req, res, next, models, sequelize) => {
-  const { body_part, newSizes } = req.body
+  const { system_category, newSizes } = req.body
   const transaction = await sequelize.transaction()
-  if (!body_part) {
+  if (!system_category) {
     return res
       .status(400)
-      .json({ error: 'Missing required query parameters: body_part' })
+      .json({ error: 'Missing required query parameters: system_category' })
   }
 
   const isValidSize = size => {
@@ -33,7 +33,7 @@ module.exports = async (req, res, next, models, sequelize) => {
   try {
     await models.system_conversions.destroy(
       {
-        where: { body_part: body_part },
+        where: { system_category: system_category },
       },
       { transaction },
     )
@@ -53,7 +53,7 @@ module.exports = async (req, res, next, models, sequelize) => {
       return Object.entries(rest).map(([system, value]) => {
         return {
           conversion_group: conversion_group,
-          body_part: body_part,
+          system_category: system_category,
           size_system: system,
           value: value,
         }

@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('clothes', {
+  return sequelize.define('system_categories', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -8,29 +8,29 @@ module.exports = function(sequelize, DataTypes) {
       primaryKey: true
     },
     key: {
-      type: DataTypes.STRING(50),
-      allowNull: true
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      unique: "system_categories_key_key"
     },
     name: {
       type: DataTypes.STRING(255),
-      allowNull: true
-    },
-    system_category: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-      references: {
-        model: 'system_categories',
-        key: 'key'
-      }
+      allowNull: false,
     }
   }, {
     sequelize,
-    tableName: 'clothes',
+    tableName: 'system_categories',
     schema: 'public',
     timestamps: false,
     indexes: [
       {
-        name: "primary00000",
+        name: "system_categories_key_key",
+        unique: true,
+        fields: [
+          { name: "key" },
+        ]
+      },
+      {
+        name: "system_categories_pkey",
         unique: true,
         fields: [
           { name: "id" },
