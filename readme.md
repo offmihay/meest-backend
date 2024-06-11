@@ -7,8 +7,7 @@ We are using Express.js to create a web server and manage routes in your Node.js
 Check the [Express.js Documentation](https://expressjs.com/) and [Sequelize Documentation](https://sequelize.org/docs/v6/) for more details.
 
 ## Short instructions
-- File ```sizes_meest_db_2_0.sql``` is SQL dump.
-- Use ```.env``` file to edit your environment variables.
+- Set Up Environment Variables in ```.env``` file.
 - To install project packages use ```npm i```.
-- To run project use ```npm start```.
+- To run project use ```npm start``` or for development mode ```npm run dev```.
 
