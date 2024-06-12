@@ -30,6 +30,8 @@ const systemConversions = require('./handlers/tableMngHandlers/system-conversion
 const systemConversionsUpdate = require('./handlers/tableMngHandlers/system-conversions-update')
 const deleteBrandHandler = require('./handlers/delete-brand')
 const systemCategoriesHandler = require('./handlers/system_categories')
+const getClothesTableHandler = require('./handlers/tableMngHandlers/get-clothes')
+const updateClothesHandler = require('./handlers/tableMngHandlers/update-clothes')
 
 router.get('/all-brands', (req, res, next) =>
   allBrandsHandler(req, res, next, models),
@@ -81,7 +83,7 @@ router.get(
 
 router.post(
   '/update-system-conversions',
-  authorizationHandler(models),
+  // authorizationHandler(models),
   (req, res, next) =>
     systemConversionsUpdate(req, res, next, models, sequelize),
 )
@@ -92,6 +94,18 @@ router.get(
   (req, res, next) => systemCategoriesHandler(req, res, next, models),
 )
 
+router.get(
+    '/get-clothes',
+    // authorizationHandler(models),
+    (req, res, next) => getClothesTableHandler(req, res, next, models),
+)
+
+router.post(
+    '/update-clothes',
+    // authorizationHandler(models),
+    (req, res, next) =>
+        updateClothesHandler(req, res, next, models, sequelize),
+)
 router.use(errorHandler)
 
 module.exports = router
