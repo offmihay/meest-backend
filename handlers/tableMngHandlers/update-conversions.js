@@ -2,7 +2,7 @@ module.exports = async (req, res, next, models, sequelize) => {
   let transaction
   try {
     const updates = req.body
-
+    console.log('Input Data:', updates)
     transaction = await sequelize.transaction()
 
     const firstRecord = updates[0]

@@ -54,7 +54,7 @@ router.get('/get-table', (req, res, next) =>
 
 router.post(
   '/update-conversions',
-  authorizationHandler(models),
+  // authorizationHandler(models),
   (req, res, next) =>
     updateConversionsHandler(req, res, next, models, sequelize),
 )

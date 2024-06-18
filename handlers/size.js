@@ -42,17 +42,17 @@ module.exports = async (req, res, next, models) => {
   }
 
   function findClothingSize(bodyMeasurements, sizeChart) {
-    let bestSize = null;
-    let minDistance = Infinity;
+    let bestSize = null
+    let minDistance = Infinity
     const tolerances = {
       height: 5,
-      head_length: 2,
-      chest_length: 5,
-      waist_length: 7,
+      head_length: 5,
+      chest_length: 8,
+      waist_length: 10,
       hip_length: 5,
       foot_length: 2,
       pants_length: 5,
-    };
+    }
     const weights = {
       height: 1,
       head_length: 1,
@@ -61,51 +61,56 @@ module.exports = async (req, res, next, models) => {
       hip_length: 1,
       foot_length: 1,
       pants_length: 1,
-    };
+    }
 
-    console.log("Starting size comparison...");
+    console.log('Starting size comparison...')
 
     for (const size of sizeChart) {
-      let distance = 0;
-      let fits = true;
-      console.log(`Checking size: ${JSON.stringify(size)}`);
+      let distance = 0
+      let fits = true
+      console.log(`Checking size: ${JSON.stringify(size)}`)
 
       for (const key of Object.keys(bodyMeasurements)) {
         if (size[key]) {
-          const sizeValue = parseFloat(size[key]);
-          const bodyValue = parseFloat(bodyMeasurements[key]);
-          const difference = Math.abs(sizeValue - bodyValue);
-          const tolerance = tolerances[key] || 5;
-          const weight = weights[key] || 1;
+          const sizeValue = parseFloat(size[key])
+          const bodyValue = parseFloat(bodyMeasurements[key])
+          const difference = Math.abs(sizeValue - bodyValue)
+          const tolerance = tolerances[key] || 5
+          const weight = weights[key] || 1
 
-          console.log(`  Comparing ${key}: body value = ${bodyValue}, size value = ${sizeValue}, difference = ${difference}, tolerance = ${tolerance}`);
+          console.log(
+            `  Comparing ${key}: body value = ${bodyValue}, size value = ${sizeValue}, difference = ${difference}, tolerance = ${tolerance}`,
+          )
 
-          if (bodyValue > sizeValue + tolerance || bodyValue < sizeValue - tolerance) {
-            fits = false;
-            console.log(`    ${key} is outside tolerance. Does not fit.`);
-            break;
+          if (
+            bodyValue > sizeValue + tolerance ||
+            bodyValue < sizeValue - tolerance
+          ) {
+            fits = false
+            console.log(`    ${key} is outside tolerance. Does not fit.`)
+            break
           }
-          distance += difference * weight;
+          distance += difference * weight
         }
       }
 
       if (fits) {
-        console.log(`  Size fits with weighted distance = ${distance}`);
+        console.log(`  Size fits with weighted distance = ${distance}`)
         if (distance < minDistance) {
-          minDistance = distance;
-          bestSize = size;
-          console.log(`  Found a better fit! New best size: ${JSON.stringify(bestSize)} with weighted distance ${minDistance}`);
+          minDistance = distance
+          bestSize = size
+          console.log(
+            `  Found a better fit! New best size: ${JSON.stringify(bestSize)} with weighted distance ${minDistance}`,
+          )
         }
       } else {
-        console.log(`  Size does not fit.`);
+        console.log(`  Size does not fit.`)
       }
     }
 
-    console.log(`Best size found: ${JSON.stringify(bestSize)}`);
-    return bestSize;
+    console.log(`Best size found: ${JSON.stringify(bestSize)}`)
+    return bestSize
   }
-
-
 
   const nearestConversion = findClothingSize(inputData, conversions)
 
